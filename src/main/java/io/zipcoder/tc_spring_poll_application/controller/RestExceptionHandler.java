@@ -43,10 +43,9 @@ public class RestExceptionHandler {
         String detail = manve.getMessage();
         long timeStamp = new Date().getTime();
         String developerMessage = manve.getStackTrace().toString();
-// create ErrorDetail object
-        ErrorDetail errorDetail = new ErrorDetail(title, status, detail, timeStamp, developerMessage);
 
-        errorDetail.getErrors();
+        // create ErrorDetail object
+        ErrorDetail errorDetail = new ErrorDetail(title, status, detail, timeStamp, developerMessage);
 
         List<FieldError> fieldErrors = manve.getBindingResult().getFieldErrors();
         for (FieldError fe : fieldErrors) {
