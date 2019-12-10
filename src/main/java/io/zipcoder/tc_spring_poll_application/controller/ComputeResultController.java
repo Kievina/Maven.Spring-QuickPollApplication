@@ -1,5 +1,6 @@
 package io.zipcoder.tc_spring_poll_application.controller;
 
+import dtos.OptionCount;
 import dtos.VoteResult;
 import io.zipcoder.tc_spring_poll_application.domain.Option;
 import io.zipcoder.tc_spring_poll_application.domain.Vote;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @RestController
 public class ComputeResultController {
@@ -30,20 +33,26 @@ public class ComputeResultController {
         Iterable<Vote> allVotes = voteRepository.findVotesByPoll(pollId);
 
         //Implement algorithm to count votes
-        List<Vote> votes = new ArrayList<>();
-        allVotes.forEach(votes::add);
-        List<Option> optionList = new ArrayList<>();
-        for (Vote vote : votes) {
-            optionList.add(vote.getOption());
-        }
-        Map<Long, Integer> optionCount = new HashMap();
+        Map<Long, Integer> countsMap = new HashMap();
+        Long optionId;
         for (Vote vote : allVotes) {
-            if (!optionCount.containsKey(vote.getOption().getId()))
-                optionCount.put(vote.getOption().getId(), 1);
-            else
-                optionCount.put(vote.getOption().getId(), optionCount.get(vote.getOption().getId()) + 1);
+            optionId = vote.getOption().getId();
+            int updatedCount;
+            if (!countsMap.containsKey(optionId))
+                countsMap.put(optionId, 1);
+            else {
+                updatedCount = countsMap.get(optionId) + 1;
+                countsMap.put(optionId, updatedCount);
+            }
         }
-        optionList.stream().collect(Collectors.groupingBy(Option::getId, Collectors.counting()));
+
+        Set<OptionCount> optionCounts = new HashSet<>();
+        for (Long id : countsMap.keySet()) {
+            optionCounts.add(new OptionCount(id, countsMap.get(id)));
+        }
+        voteResult.setResults(optionCounts);
+        voteResult.setTotalVotes(voteResult.getTotalVotes());
+
         return new ResponseEntity<>(voteResult, HttpStatus.OK);
     }
 

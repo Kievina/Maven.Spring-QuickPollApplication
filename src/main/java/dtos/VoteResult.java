@@ -6,6 +6,9 @@ public class VoteResult {
     private int totalVotes;
     private Collection<OptionCount> results;
 
+    public VoteResult() {
+    }
+
     public int getTotalVotes() {
         int count = 0;
         for (OptionCount option : results) {
